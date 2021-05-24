@@ -21,15 +21,50 @@ Geom1d& Geom1d::operator=(const Geom1d& copy) {
 }
 
 void Geom1d::Shape(const VecDouble &xi, VecDouble &phi, MatrixDouble &dphi) {
-    DebugStop();
+    if (xi.size() != Dimension || phi.size() != nCorners || dphi.rows() != Dimension || dphi.cols() != nCorners) DebugStop();
+   
+    double qsi = xi[0];
+    phi.resize(2);
+    dphi.resize(1, 2);
+    
+    phi(0) = (1. - qsi) / 2.;
+    phi(1) = (1. + qsi) / 2.;
+
+    dphi(0,0) = -1. / 2.;
+    dphi(0,1) = 1. / 2.;
 }
 
 void Geom1d::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
-    DebugStop();
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() != NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
+
+    int nrow = NodeCo.rows();
+    
+    for (int i = 0; i < nrow; i++) {
+        x[i] = NodeCo(i, 0) * (1. - xi[0]) * 0.5 + NodeCo(i, 1) * (1. + xi[0]) * 0.5;
+    }
+
 }
 
 void Geom1d::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, MatrixDouble &gradx) {
-    DebugStop();
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() != NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
+
+    int nrow = NodeCo.rows();
+    int ncol = NodeCo.cols();
+
+    gradx.resize(nrow, 1);
+    gradx.setZero();
+    x.resize(nrow);
+    x.setZero();
+
+    for (int i = 0; i < nrow; i++) {
+        x[i] = NodeCo(i, 0) * (1. - xi[0]) * 0.5 + NodeCo(i, 1) * (1. + xi[0]) * 0.5;
+        gradx(i,0) = NodeCo(i, 0) * (-0.5) + NodeCo(i, 1) *0.5;
+    } 
+   
 }
 
 void Geom1d::SetNodes(const VecInt &nodes) {
