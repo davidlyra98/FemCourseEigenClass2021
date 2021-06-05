@@ -32,8 +32,62 @@ void ShapeQuad::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, Matri
         DebugStop();
     }
 
-    std::cout << "Please implement me\n";
     DebugStop();
+
+    /*
+    int nshape = NShapeFunctions(orders);
+    double qsi = xi[0];
+    double eta = xi[1];
+
+    phi.resize(nshape);
+    dphi.resize(2, nshape);
+
+    phi[0] = (1. / 4.) * (1. - qsi) * (1. - eta);
+    phi[1] = (1. / 4.) * (1. + qsi) * (1. - eta);
+    phi[2] = (1. / 4.) * (1. + qsi) * (1. + eta);
+    phi[3] = (1. / 4.) * (1. - qsi) * (1. + eta);
+
+    dphi(0, 0) = (1. / 4.) * (-1 + eta);
+    dphi(1, 0) = (1. / 4.) * (-1 + qsi);
+    dphi(0, 1) = (1. - eta) / 4.;
+    dphi(1, 1) = (1. / 4.) * (-1 - qsi);
+    dphi(0, 2) = (1. + eta) / 4.;
+    dphi(1, 2) = (1. + qsi) / 4.;
+    dphi(0, 3) = (1. / 4.) * (-1 - eta);
+    dphi(1, 3) = (1. - qsi) / 4.;
+
+    int count = 4;
+    int is;
+    for (is = 4; is < 8; is ++) {
+        if (orders[is] == 2) {
+
+            
+            int is1 = is % 4;
+            int is2 = (is + 1) % 4;
+            int is3 = (is + 2) % 4 ;
+            
+            phi[count] = 4. * phi[is1] * (phi[is2] + phi[is3]);
+            dphi(0, count) = 4. * (dphi(0, is1) * (phi[is2] + phi[is3]) + phi[is1] * (dphi(0, is2) + dphi(0, is3)));
+            dphi(1, count) = 4. * (dphi(1, is1) * (phi[is2] + phi[is3]) + phi[is1] * (dphi(1, is2) + dphi(1, is3)));
+
+            count++;
+        }
+
+        else if (orders[is] != 1) DebugStop();
+
+    }
+
+    if (orders[8] == 2) {
+        phi[count] = 16. * phi[0] * phi[2];
+        dphi(0, count) = 16 * (dphi(0, 0) * phi[2] + phi[0] * dphi(0, 2));
+        dphi(1, count) = 16 * (dphi(1, 0) * phi[2] + phi[0] * dphi(1, 2));
+
+    }
+    else if (orders[8] != 1) DebugStop();
+    if (count != nshape) DebugStop();
+
+    */
+
 }
 
 /// returns the number of shape functions associated with a side
@@ -59,6 +113,6 @@ int ShapeQuad::NShapeFunctions(VecInt &orders){
     for(int in=4; in<orders.size(); in++) {
         res += NShapeFunctions(in, orders[in]);
     }
-    
+   
     return res;
 }
