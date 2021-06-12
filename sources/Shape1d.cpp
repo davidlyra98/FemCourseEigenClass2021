@@ -28,7 +28,6 @@ void Shape1d::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, MatrixD
     
     auto nshape = NShapeFunctions(orders);
 
-    
     phi.resize(nshape);
     dphi.resize(1, nshape);
   

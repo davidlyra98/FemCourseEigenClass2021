@@ -31,17 +31,16 @@ void ShapeQuad::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, Matri
         std::cout << "ShapeQuad::Shape, only implemented until order = 2" << std::endl;
         DebugStop();
     }
-
-    DebugStop();
-
-    /*
+    
     int nshape = NShapeFunctions(orders);
+    
+    
     double qsi = xi[0];
     double eta = xi[1];
 
     phi.resize(nshape);
     dphi.resize(2, nshape);
-
+    
     phi[0] = (1. / 4.) * (1. - qsi) * (1. - eta);
     phi[1] = (1. / 4.) * (1. + qsi) * (1. - eta);
     phi[2] = (1. / 4.) * (1. + qsi) * (1. + eta);
@@ -58,10 +57,12 @@ void ShapeQuad::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, Matri
 
     int count = 4;
     int is;
-    for (is = 4; is < 8; is ++) {
-        if (orders[is] == 2) {
 
-            
+  
+    for (is = 4; is < 8; is ++) {
+        
+        if (orders[is] == 2) {
+  
             int is1 = is % 4;
             int is2 = (is + 1) % 4;
             int is3 = (is + 2) % 4 ;
@@ -76,18 +77,18 @@ void ShapeQuad::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, Matri
         else if (orders[is] != 1) DebugStop();
 
     }
-
+    
+    
     if (orders[8] == 2) {
         phi[count] = 16. * phi[0] * phi[2];
-        dphi(0, count) = 16 * (dphi(0, 0) * phi[2] + phi[0] * dphi(0, 2));
-        dphi(1, count) = 16 * (dphi(1, 0) * phi[2] + phi[0] * dphi(1, 2));
-
+        dphi(0, count) = 16. * (dphi(0, 0) * phi[2] + phi[0] * dphi(0, 2));
+        dphi(1, count) = 16. * (dphi(1, 0) * phi[2] + phi[0] * dphi(1, 2));
+        count++;
     }
     else if (orders[8] != 1) DebugStop();
     if (count != nshape) DebugStop();
 
-    */
-
+    
 }
 
 /// returns the number of shape functions associated with a side

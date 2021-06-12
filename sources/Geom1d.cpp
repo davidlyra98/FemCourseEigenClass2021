@@ -35,12 +35,13 @@ void Geom1d::Shape(const VecDouble &xi, VecDouble &phi, MatrixDouble &dphi) {
 }
 
 void Geom1d::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
+    
     if (xi.size() != Dimension) DebugStop();
     if (x.size() != NodeCo.rows()) DebugStop();
     if (NodeCo.cols() != nCorners) DebugStop();
 
     int nrow = NodeCo.rows();
-    
+
     for (int i = 0; i < nrow; i++) {
         x[i] = NodeCo(i, 0) * (1. - xi[0]) * 0.5 + NodeCo(i, 1) * (1. + xi[0]) * 0.5;
     }
@@ -70,8 +71,6 @@ void Geom1d::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, Matr
 void Geom1d::SetNodes(const VecInt &nodes) {
 
     if (nodes.rows() != 2) DebugStop();
-
-    if(nodes.rows() != 2) DebugStop();
 
     fNodeIndices = nodes;
 }

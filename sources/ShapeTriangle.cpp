@@ -32,8 +32,7 @@ void ShapeTriangle::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, M
         DebugStop();
     }
     
-    DebugStop();
-    /*
+    
     int nshape = NShapeFunctions(orders);
     double qsi = xi[0];
     double eta = xi[1];
@@ -41,9 +40,10 @@ void ShapeTriangle::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, M
     phi.resize(nshape);
     dphi.resize(2, nshape);
 
-    phi(0) = (1. - qsi - eta);
-    phi(1) = qsi;
-    phi(2) = eta;
+    phi[0] = (1. - qsi - eta);
+    phi[1] = qsi;
+    phi[2] = eta;
+
     dphi(0, 0) = -1.;
     dphi(1, 0) = -1.;
     dphi(0, 1) = 1.;
@@ -53,10 +53,11 @@ void ShapeTriangle::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, M
 
     int count = 3;
     int is;
+
     for (is = 3; is < 6; is++) {
         if (orders[is] == 2) {
 
-            int is1 = (is) % 3;
+            int is1 = is % 3;
             int is2 = (is + 1) % 3;
 
             phi[count] = 4. * phi[is1] * phi[is2];
@@ -70,16 +71,19 @@ void ShapeTriangle::Shape(const VecDouble &xi, VecInt &orders, VecDouble &phi, M
 
     }
 
-    if (orders[6] == 2) {
+    if (orders[6] == 3) {
         phi[count] = 27. * phi[0] * phi[1]* phi[2];
-        dphi(0, count) = 27. *( (dphi(0, 0) * phi[1] + phi[0] * dphi(0, 1))*phi[2]+(phi[0]*phi[1])*dphi(0,2));
-        dphi(1, count) = 27. * ((dphi(1, 0) * phi[1] + phi[0] * dphi(1, 1)) * phi[2] + (phi[0] * phi[1]) * dphi(1, 2));
+       
+        dphi(0, count) = 27. *((dphi(0, 0) * phi[1] + phi[0] * dphi(0, 1)) * phi[2] + (phi[0]*phi[1])*dphi(0,2));
+        dphi(1, count) = 27. *((dphi(1, 0) * phi[1] + phi[0] * dphi(1, 1)) * phi[2] + (phi[0] * phi[1]) * dphi(1, 2));
 
+        count++;
     }
-    else if (orders[6] != 1) DebugStop();
+    
+    else if (orders[6] != 1 && orders[6] != 2) DebugStop();
+
     if (count != nshape) DebugStop();
-    */
- 
+  
 }
 
 /// returns the number of shape functions associated with a side
