@@ -54,7 +54,6 @@ void GeomQuad::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
     if(x.size() < NodeCo.rows()) DebugStop();
     if(NodeCo.cols() != nCorners) DebugStop();
     
-    
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
 
