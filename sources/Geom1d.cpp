@@ -22,7 +22,7 @@ Geom1d& Geom1d::operator=(const Geom1d& copy) {
 
 void Geom1d::Shape(const VecDouble &xi, VecDouble &phi, MatrixDouble &dphi) {
     if (xi.size() != Dimension || phi.size() != nCorners || dphi.rows() != Dimension || dphi.cols() != nCorners) DebugStop();
-   
+  
     double qsi = xi[0];
     phi.resize(2);
     dphi.resize(1, 2);
@@ -38,6 +38,9 @@ void Geom1d::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
     
     if (xi.size() != Dimension) DebugStop();
     if (x.size() != NodeCo.rows()) DebugStop();
+    
+    int ncols = NodeCo.cols();
+
     if (NodeCo.cols() != nCorners) DebugStop();
 
     int nrow = NodeCo.rows();

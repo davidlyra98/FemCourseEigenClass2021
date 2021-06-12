@@ -62,9 +62,9 @@ int main()
 
     GeoMesh gmesh;
     ReadGmsh read;
-    read.Read(gmesh, "mesh.msh");
+    read.Read(gmesh, "mesh2.msh");
     VTKGeoMesh plotmesh;
-    plotmesh.PrintGMeshVTK(&gmesh, "mesh.vtk");
+    plotmesh.PrintGMeshVTK(&gmesh, "mesh2.vtk");
     
     
     CompMesh cmesh(&gmesh);
@@ -92,6 +92,8 @@ int main()
         cmesh.Solution()[isol] = 1.;
         plotmesh.PrintCMeshVTK(&cmesh, 2, sout.str());
     }
+    
+    
     return 0;
 }
 
