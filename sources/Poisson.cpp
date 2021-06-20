@@ -125,30 +125,31 @@ void Poisson::Contribute(IntPointData &data, double weight, MatrixDouble &EK, Ma
     MatrixDouble axes = data.axes;
     MatrixDouble dphi2, dphi3;
 
-    this->Axes2XYZ(dphi, dphi2, axes);
+    dphi2 = data.axes.transpose() * data.dphidx;
+    // this->Axes2XYZ(dphi, dphi2, axes);
     dphi3 = dphi2.transpose();
 
-    int nshape = phi.size();
+    //int nshape = phi.size();
     int nstate = this->NState();
-    int dim = dphi.rows();
+    //int dim = dphi.rows();
 
     MatrixDouble perm(3, 3);
-    std::function<void(const VecDouble &co, VecDouble & result) > force;
+    //std::function<void(const VecDouble &co, VecDouble & result) > force;
 
     perm = this->GetPermeability();
-    force = this->GetForceFunction();
-
-    VecDouble res(nstate);
+    double res = 0.;
+    auto force = this->GetForceFunction();
+    //VecDouble res(nstate);
     if(force)
     {
-        force(data.x, res);
+        VecDouble resloc(1);
+        force(data.x, resloc);
+        res = resloc[0];
     }
 
 
-    //+++++++++++++++++
-    // Please implement me
-    std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-    DebugStop();
+    EF += phi * (res * weight);
+    EK += dphi3 * perm * dphi2 * weight;
     //+++++++++++++++++
 }
 
@@ -173,6 +174,7 @@ void Poisson::PostProcessSolution(const IntPointData &data, const int var, VecDo
             //+++++++++++++++++
             // Please implement me
             std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+            return;
             DebugStop();
             //+++++++++++++++++
         }
@@ -183,6 +185,7 @@ void Poisson::PostProcessSolution(const IntPointData &data, const int var, VecDo
             //+++++++++++++++++
             // Please implement me
             std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+            return;
             DebugStop();
             //+++++++++++++++++
         }

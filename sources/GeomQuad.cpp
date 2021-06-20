@@ -54,6 +54,15 @@ void GeomQuad::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
     if(x.size() < NodeCo.rows()) DebugStop();
     if(NodeCo.cols() != nCorners) DebugStop();
     
+    int nrow = NodeCo.rows();
+    int ncol = NodeCo.cols();
+
+    if (x.size() < nrow) {
+        x.resize(2);
+    }
+              
+    x.setZero();
+
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
 
@@ -79,12 +88,15 @@ void GeomQuad::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, Ma
     
     gradx.resize(2, 2);
     gradx.setZero();
-    x.resize(2);
-    x.setZero();
     
     int nrow = NodeCo.rows();
     int ncol = NodeCo.cols();
 
+    if (x.size() < nrow) {
+        x.resize(2);
+    }
+    x.setZero();
+    
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
     

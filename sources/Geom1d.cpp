@@ -38,12 +38,16 @@ void Geom1d::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
     
     if (xi.size() != Dimension) DebugStop();
     if (x.size() != NodeCo.rows()) DebugStop();
-    
-    int ncols = NodeCo.cols();
-
     if (NodeCo.cols() != nCorners) DebugStop();
 
     int nrow = NodeCo.rows();
+    int ncol = NodeCo.cols();
+
+    if (x.size() < nrow) {
+        x.resize(nrow);
+    }
+
+    x.setZero();
 
     for (int i = 0; i < nrow; i++) {
         x[i] = NodeCo(i, 0) * (1. - xi[0]) * 0.5 + NodeCo(i, 1) * (1. + xi[0]) * 0.5;
@@ -61,7 +65,9 @@ void Geom1d::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, Matr
 
     gradx.resize(nrow, 1);
     gradx.setZero();
-    x.resize(nrow);
+    if (x.size() < nrow) {
+        x.resize(nrow);
+    }
     x.setZero();
 
     for (int i = 0; i < nrow; i++) {

@@ -17,6 +17,7 @@
 #include "CompMesh.h"
 #include "Poisson.h"
 #include "L2Projection.h"
+#include "CompElement.h"
 
 using std::cout;
 using std::endl;
@@ -62,27 +63,32 @@ int main()
 
     GeoMesh gmesh;
     ReadGmsh read;
-    read.Read(gmesh, "mesh2.msh");
+    read.Read(gmesh, "quads.msh");
     VTKGeoMesh plotmesh;
-    plotmesh.PrintGMeshVTK(&gmesh, "mesh2.vtk");
+    plotmesh.PrintGMeshVTK(&gmesh, "quads.vtk");
     
     
     CompMesh cmesh(&gmesh);
-    MatrixDouble perm(2, 2);
+    MatrixDouble perm(3, 3);
     perm.setZero();
     perm(0, 0) = 1.;
     perm(1, 1) = 1.;
-    Poisson* mat1 = new Poisson(3, perm);
+    perm(2, 2) = 1.;
+    Poisson *mat1 = new Poisson(3, perm);
+    
+    
     MatrixDouble proj(1, 1), val1(1, 1), val2(1, 1);
     proj.setZero();
     val1.setZero();
     val2.setZero();
-    L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
-    L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
-    std::vector<MathStatement*> mathvec = { 0,bc_point,bc_linha,mat1 };
+    L2Projection *bc_linha = new L2Projection(0, 2, proj, val1, val2);
+    L2Projection *bc_point = new L2Projection(0, 1, proj, val1, val2);
+    std::vector<MathStatement *> mathvec = { 0,bc_point,bc_linha,mat1 };
     cmesh.SetMathVec(mathvec);
     cmesh.AutoBuild();
     cmesh.Resequence();
+    //plotmesh.PrintCMeshVTK(&cmesh, 2, "quads.vtk");
+      
     int nsol = cmesh.Solution().rows();
     for (int isol = 0; isol < nsol; isol++)
     {
@@ -93,6 +99,15 @@ int main()
         plotmesh.PrintCMeshVTK(&cmesh, 2, sout.str());
     }
     
+    int64_t nel = cmesh.GetElementVec().size();
+    for (auto cel : cmesh.GetElementVec())
+    {
+        MatrixDouble ek, ef;
+        cel->CalcStiff(ek, ef);
+        std::cout << "stiffness for element" << cel->GetIndex() << std::endl <<
+            ek << std::endl;
+
+    }
     
     return 0;
 }

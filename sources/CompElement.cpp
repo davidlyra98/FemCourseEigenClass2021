@@ -175,13 +175,28 @@ void CompElement::CalcStiff(MatrixDouble &ek, MatrixDouble &ef) const {
         return;
     }
     // Second, you should clear the matrices you're going to compute
+    int nshape = NShapeFunctions();
+    int nstate = material->NState();
+    ek.resize(nstate*nshape, nstate*nshape);
+    ef.resize(nstate*nshape, 1);
+    
     ek.setZero();
     ef.setZero();
 
-    //+++++++++++++++++
-    // Please implement me
-    std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-    DebugStop();
+    IntPointData data;
+    this->InitializeIntPointData(data);
+    double weight = 0.;
+
+    IntRule* intrule = this->GetIntRule();
+    int intrulepoints = intrule->NPoints();
+
+    for (int int_ind = 0; int_ind < intrulepoints; ++int_ind) {
+        intrule->Point(int_ind, data.ksi, weight);
+        weight *= fabs(data.detjac);
+
+        material->Contribute(data, weight, ek, ef);
+
+    }
     //+++++++++++++++++
 }
 

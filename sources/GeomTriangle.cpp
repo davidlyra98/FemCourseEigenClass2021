@@ -55,6 +55,13 @@ void GeomTriangle::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
     
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
+    int nrow = NodeCo.rows();
+    int ncol = NodeCo.cols();
+
+    if (x.size() < nrow) {
+        x.resize(2);
+    }
+    x.setZero();
 
     Shape(xi, phi, dphi);
     int space = NodeCo.rows();
@@ -76,11 +83,13 @@ void GeomTriangle::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x
     
     gradx.resize(2, 2);
     gradx.setZero();
-    x.resize(2);
-    x.setZero();
-
     int nrow = NodeCo.rows();
     int ncol = NodeCo.cols();
+
+    if (x.size() < nrow) {
+        x.resize(2);
+    }
+    x.setZero();
 
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
