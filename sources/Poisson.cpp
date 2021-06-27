@@ -160,7 +160,12 @@ void Poisson::PostProcessSolution(const IntPointData& data, const int var, VecDo
     int cols = data.dsoldx.cols();
     MatrixDouble gradu(rows, cols);
     gradu = data.dsoldx;
+   
+    MatrixDouble gradudx, flux;
+    gradudx = data.axes.transpose() * data.dsoldx;
+    flux = -permeability * gradudx;
     int nstate = this->NState();
+    if (nstate != 1) DebugStop();
 
     switch (var) {
     case 0: //None
@@ -171,12 +176,7 @@ void Poisson::PostProcessSolution(const IntPointData& data, const int var, VecDo
 
     case 1: //ESol
     {
-        //+++++++++++++++++
-        // Please implement me
-        std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-        return;
-        DebugStop();
-        //+++++++++++++++++
+        Solout = data.solution;
     }
     break;
 
@@ -184,20 +184,24 @@ void Poisson::PostProcessSolution(const IntPointData& data, const int var, VecDo
     {
         //+++++++++++++++++
         // Please implement me
-        std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-        return;
-        DebugStop();
-        //+++++++++++++++++
+        //std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+        Solout.resize(3);
+        for (int i = 0; i < 3; i++) {
+            Solout[i] = gradudx(i, 0);
+        }
+        
     }
     break;
     case 3: //EFlux
     {
         //+++++++++++++++++
         // Please implement me
-        std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-        return;
-        DebugStop();
-        //+++++++++++++++++
+        //std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+        Solout.resize(3);
+        for (int i = 0; i < 3; i++) {
+            Solout[i] = flux(i, 0);
+        }
+
     }
     break;
 
@@ -205,10 +209,13 @@ void Poisson::PostProcessSolution(const IntPointData& data, const int var, VecDo
     {
         Solout.resize(nstate);
         VecDouble result(nstate);
-        this->forceFunction(data.x, result);
-        for (int i = 0; i < nstate; i++) {
-            Solout[i] = result[i];
+        if (forceFunction) {
+            this->forceFunction(data.x, result);
+            for (int i = 0; i < nstate; i++) {
+                Solout[i] = result[i];
+            }
         }
+        else Solout.setZero();
     }
     break;
 
@@ -216,20 +223,31 @@ void Poisson::PostProcessSolution(const IntPointData& data, const int var, VecDo
     {
         //+++++++++++++++++
         // Please implement me
-        std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-        return;
-        DebugStop();
-        //+++++++++++++++++
+        //std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+        Solout.resize(nstate);
+        VecDouble sol(nstate);
+        MatrixDouble dsol(3, nstate);
+        if (SolutionExact) this->SolutionExact(data.x, Solout, dsol);
+        else Solout.setZero();
+
     }
     break;
     case 6: //EDSolExact
     {
         //+++++++++++++++++
         // Please implement me
-        std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-        return;
-        DebugStop();
-        //+++++++++++++++++
+        //std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
+        Solout.resize(3);
+        VecDouble sol(nstate);
+        MatrixDouble dsol(3, nstate);
+        if (SolutionExact) this->SolutionExact(data.x, sol, dsol);
+        else dsol.setZero();
+
+        for (int i = 0; i < 3; i++) {
+            Solout[i] = dsol(i, 0);
+        }
+
+
     }
     break;
 
