@@ -12,7 +12,7 @@ GeomTriangle::GeomTriangle() {
 GeomTriangle::~GeomTriangle() {
 }
 
-GeomTriangle::GeomTriangle(const GeomTriangle &copy) {
+GeomTriangle::GeomTriangle(const GeomTriangle& copy) {
     fNodeIndices = copy.fNodeIndices;
 
 }
@@ -24,8 +24,8 @@ GeomTriangle& GeomTriangle::operator=(const GeomTriangle& copy) {
 }
 
 void GeomTriangle::Shape(const VecDouble& xi, VecDouble& phi, MatrixDouble& dphi) {
-    if(xi.size() != Dimension || phi.size() != nCorners || dphi.rows() != Dimension || dphi.cols() != nCorners) DebugStop();
-    
+    if (xi.size() != Dimension || phi.size() != nCorners || dphi.rows() != Dimension || dphi.cols() != nCorners) { DebugStop(); }
+
     double qsi = xi[0];
     double eta = xi[1];
 
@@ -35,7 +35,7 @@ void GeomTriangle::Shape(const VecDouble& xi, VecDouble& phi, MatrixDouble& dphi
     phi(0) = (1. - qsi - eta);
     phi(1) = qsi;
     phi(2) = eta;
-    
+
 
     dphi(0, 0) = -1.;
     dphi(1, 0) = -1.;
@@ -48,11 +48,11 @@ void GeomTriangle::Shape(const VecDouble& xi, VecDouble& phi, MatrixDouble& dphi
 
 }
 
-void GeomTriangle::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
-    if(xi.size() != Dimension) DebugStop();
-    if(x.size() != NodeCo.rows()) DebugStop();
-    if(NodeCo.cols() != nCorners) DebugStop();
-    
+void GeomTriangle::X(const VecDouble& xi, MatrixDouble& NodeCo, VecDouble& x) {
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() < NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
+
     VecDouble phi(nCorners);
     MatrixDouble dphi(Dimension, nCorners);
     int nrow = NodeCo.rows();
@@ -76,11 +76,11 @@ void GeomTriangle::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
 
 }
 
-void GeomTriangle::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, MatrixDouble &gradx) {
-    if(xi.size() != Dimension) DebugStop();
-    if(x.size() != NodeCo.rows()) DebugStop();
-    if(NodeCo.cols() != nCorners) DebugStop();
-    
+void GeomTriangle::GradX(const VecDouble& xi, MatrixDouble& NodeCo, VecDouble& x, MatrixDouble& gradx) {
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() != NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
+
     gradx.resize(2, 2);
     gradx.setZero();
     int nrow = NodeCo.rows();
@@ -107,12 +107,12 @@ void GeomTriangle::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x
 
 }
 
-void GeomTriangle::SetNodes(const VecInt &nodes) {
-    if(nodes.size() != nCorners) DebugStop();
+void GeomTriangle::SetNodes(const VecInt& nodes) {
+    if (nodes.size() != nCorners) DebugStop();
     fNodeIndices = nodes;
 }
 
-void GeomTriangle::GetNodes(VecInt &nodes) const  {
+void GeomTriangle::GetNodes(VecInt& nodes) const {
     nodes = fNodeIndices;
 }
 
@@ -128,6 +128,6 @@ GeoElementSide GeomTriangle::Neighbour(int side)  const {
     return fNeighbours[side];
 }
 
-void GeomTriangle::SetNeighbour(int side, const GeoElementSide &neighbour) {
+void GeomTriangle::SetNeighbour(int side, const GeoElementSide& neighbour) {
     fNeighbours[side] = neighbour;
 }
