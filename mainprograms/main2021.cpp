@@ -18,6 +18,8 @@
 #include "Poisson.h"
 #include "L2Projection.h"
 #include "CompElement.h"
+#include "GeoElement.h"
+#include "Assemble.h"
 
 using std::cout;
 using std::endl;
@@ -114,7 +116,7 @@ int main()
 }
 
 */
-/*
+
 
 //MainPostProcess
 
@@ -149,7 +151,7 @@ int main()
 	data.dphidksi(0, 1) = 1.;
 	data.dphidksi(1, 1) = 0.;
 	data.dphidksi(0, 2) = 0.;
-	data.dphidksi(1, 0) = 1.;
+	data.dphidksi(1, 2) = 1.;
 
 	data.dphidx(0, 0) = -1. / M_SQRT2;
 	data.dphidx(1, 0) = 1. / M_SQRT2-M_SQRT2;
@@ -167,6 +169,7 @@ int main()
 	data.axes(0, 1) = 1. / M_SQRT2;
 	data.axes(1, 0) = -1. / M_SQRT2;
 	data.axes(1, 1) = 1. / M_SQRT2;
+
 
 	data.ksi[0] = 0.3;
 	data.ksi[1] = 0.4;
@@ -214,8 +217,8 @@ int main()
 	//postprocess.AppendVariable("Flux");
 	postprocess.AppendVariable("Sol");
 	//postprocess.AppendVariable("Dsol");
-	//postprocess.AppendVariable("SolExact");
-	//postprocess.AppendVariable("Force");
+	postprocess.AppendVariable("SolExact");
+	postprocess.AppendVariable("Force");
 	//postprocess.AppendVariable("DSolExact");
 
 	int64_t nscal = postprocess.NumScalarVariables();
@@ -241,8 +244,9 @@ int main()
 
 } 
 
-*/
 
+
+/*
 //MainContribute
 
 int main()
@@ -312,4 +316,107 @@ int main()
 	return 0;
 
 }
-   
+  
+*/
+
+/*
+//MainCalcStiff
+
+int main() {
+
+	GeoMesh gmesh;
+	ReadGmsh read;
+	read.Read(gmesh, "quads.msh");
+	VTKGeoMesh plotmesh;
+	plotmesh.PrintGMeshVTK(&gmesh, "quads.vtk");
+
+	CompMesh cmesh(&gmesh);
+	MatrixDouble perm(3, 3);
+	perm.setZero();
+	perm(0, 0) = 1.;
+	perm(1, 1) = 1.;
+	perm(2, 2) = 1.;
+	Poisson* mat1 = new Poisson(3, perm);
+	MatrixDouble proj(1, 1), val1(1, 1), val2(1, 1);
+	proj.setZero();
+	val1.setZero();
+	val2.setOnes();
+	L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
+	L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
+	std::vector<MathStatement*> mathvec = { 0,bc_point,bc_linha,mat1 };
+	cmesh.SetMathVec(mathvec);
+	cmesh.AutoBuild();
+	cmesh.Resequence();
+	
+	for (auto cel : cmesh.GetElementVec()) {
+		MatrixDouble ek, ef;
+		auto gel = cel->GetGeoElement();
+		auto nnodes = gel->NNodes();
+		VecInt nodeindices;
+		IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " ", " ");
+		IOFormat HeavyFmt(FullPrecision, 0, ", ", "\n", "{", "},", "{", "}");
+		gel->GetNodes(nodeindices);
+		std::cout << "element index " << cel->GetIndex() << std::endl;
+		std::cout << "coord = { ";
+		for (auto in = 0; in < nnodes; in++) {
+			GeoNode& node = gmesh.Node(nodeindices[in]);
+			std::cout << "{ " << node.Co().format(CommaInitFmt) << "}";
+			if (in < nnodes - 1) std::cout << ",";
+		}
+
+		std::cout << "};\n";
+		cel->CalcStiff(ek, ef);
+		std::cout <<
+			"ek = " << ek.format(HeavyFmt) << ";\n";
+		std::cout <<
+			"ef = " << ef.format(HeavyFmt) << ";\n";
+
+	}
+
+	return 0;
+
+
+}
+
+*/
+
+/*
+//MainAssemble
+
+
+int main() {
+
+	GeoMesh gmesh;
+	ReadGmsh read;
+	read.Read(gmesh, "quads.msh");
+	VTKGeoMesh plotmesh;
+	plotmesh.PrintGMeshVTK(&gmesh, "quads.vtk");
+
+	CompMesh cmesh(&gmesh);
+	MatrixDouble perm(3, 3);
+	perm.setZero();
+	perm(0, 0) = 1.;
+	perm(1, 1) = 1.;
+	perm(2, 2) = 1.;
+	Poisson* mat1 = new Poisson(3, perm);
+	MatrixDouble proj(1, 1), val1(1, 1), val2(1, 1);
+	proj.setZero();
+	val1.setZero();
+	val2.setOnes();
+	L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
+	L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
+	std::vector<MathStatement*> mathvec = { 0,bc_point,bc_linha,mat1 };
+	cmesh.SetMathVec(mathvec);
+	cmesh.AutoBuild();
+	cmesh.Resequence();
+
+	Assemble assemble(&cmesh);
+	auto neq = assemble.NEquations();
+	MatrixDouble globmat(neq, neq), rhs(neq, 1);
+	assemble.Compute(globmat, rhs);
+
+	return 0;
+
+}
+
+*/

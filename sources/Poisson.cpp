@@ -68,7 +68,7 @@ Poisson::PostProcVar Poisson::VariableIndex(const std::string& name) {
     if (!strcmp("SolExact", name.c_str())) return ESolExact;
     if (!strcmp("DSolExact", name.c_str())) return EDSolExact;
     else {
-        std::cout << "variable not implemented" << std::endl;
+        std::cout << "variable " << name << " not implemented" << std::endl;
     }
     // Code should not reach this point. This return is only here to stop compiler warnings.
     DebugStop();
