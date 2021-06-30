@@ -180,10 +180,10 @@ int main()
 	data.x[1] = 0.7;
 
 	data.solution.resize(1);
-	data.solution[0] = 5.;
-	data.dsoldx.resize(2, 1);
-	data.dsoldx(0, 0) = -5.;
-	data.dsoldx(1, 0) = 2.;
+	data.solution[0] = 5.; //5.
+	data.dsoldx.resize(2, 1); 
+	data.dsoldx(0, 0) = -5.; //-5
+	data.dsoldx(1, 0) = 2.; //2
 
 	MatrixDouble perm(3, 3);
 	perm.setZero();
@@ -196,6 +196,8 @@ int main()
 	};
 
 	Poisson matpoisson(1, perm);
+	matpoisson.SetDimension(2);
+
 	matpoisson.SetForceFunction(force);
 
 
@@ -213,13 +215,13 @@ int main()
 	matpoisson.SetExactSolution(exact);
 
 
-	VecDouble solout;
-	//postprocess.AppendVariable("Flux");
+	VecDouble Solout;
+	postprocess.AppendVariable("Flux");
 	postprocess.AppendVariable("Sol");
-	//postprocess.AppendVariable("Dsol");
+	postprocess.AppendVariable("Dsol");
 	postprocess.AppendVariable("SolExact");
 	postprocess.AppendVariable("Force");
-	//postprocess.AppendVariable("DSolExact");
+	postprocess.AppendVariable("DSolExact");
 
 	int64_t nscal = postprocess.NumScalarVariables();
 	int64_t nvecs = postprocess.NumVectorVariables();

@@ -39,7 +39,7 @@ void GeomQuad::Shape(const VecDouble& xi, VecDouble& phi, MatrixDouble& dphi) {
     dphi(1, 0) = (1. / 4.) * (-1 + qsi);
 
     dphi(0, 1) = (1. - eta) / 4.;
-    dphi(1, 1) = (1. / 4.) * (-1 - qsi);
+    dphi(1, 1) = (1. / 4.) * (-1 - qsi); //certo? ou mudar o sinal
 
     dphi(0, 2) = (1. + eta) / 4.;
     dphi(1, 2) = (1. + qsi) / 4.;
