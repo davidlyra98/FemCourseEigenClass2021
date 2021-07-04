@@ -76,7 +76,8 @@ class PostProcessTemplate: public PostProcess
 
     virtual VecInt ScalarvariablesIds() const{
         math Statement;
-        VecInt ScalVar(NumScalarVariables(),0);
+        std::cout << "Scalar Variables " << NumScalarVariables() << std::endl;
+        VecInt ScalVar(NumScalarVariables(),1);
         
         for (int index = 0; index< NumScalarVariables(); index++) {
             ScalVar[index]=Statement.VariableIndex(scalarvariables[index]);

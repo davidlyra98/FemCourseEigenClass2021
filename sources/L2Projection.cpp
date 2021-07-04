@@ -188,6 +188,18 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
     }
     break;
 
+    case 3: {
+        break;
+    }
+    case 4: {
+        break;
+    }
+    case 5: {
+        break;
+    }
+    case 6: {
+        break;
+    }
     default:
     {
         std::cout << " Var index not implemented " << std::endl;
