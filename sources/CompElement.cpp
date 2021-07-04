@@ -193,6 +193,8 @@ void CompElement::CalcStiff(MatrixDouble &ek, MatrixDouble &ef) const {
 
     for (int int_ind = 0; int_ind < intrulepoints; ++int_ind) {
         intrule->Point(int_ind, data.ksi, weight);
+
+        this->ComputeRequiredData(data, data.ksi);
         weight *= fabs(data.detjac);
 
         material->Contribute(data, weight, ek, ef);

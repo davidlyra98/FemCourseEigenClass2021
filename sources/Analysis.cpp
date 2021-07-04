@@ -11,6 +11,7 @@
 #include "GeoElement.h"
 #include "VTKGeoMesh.h"
 #include "PostProcessTemplate.h"
+#include "MathStatement.h"
 
 using namespace std;
 
