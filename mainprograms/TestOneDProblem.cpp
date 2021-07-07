@@ -75,8 +75,9 @@ int main ()
     cmesh.Resequence();  
     
 
-    Analysis Analysis(&cmesh);
-    Analysis.RunSimulation();
+    Analysis AnalysisLoc(&cmesh);
+    AnalysisLoc.RunSimulation();
+
     
     PostProcessTemplate<Poisson> postprocess;
     postprocess.SetExact(exact);
@@ -84,7 +85,7 @@ int main ()
 
     
     VecDouble errvec;
-    errvec = Analysis.PostProcessError(std::cout, postprocess);
+    errvec = AnalysisLoc.PostProcessError(std::cout, postprocess);
     
     
     return 0;
@@ -100,6 +101,7 @@ void exact(const VecDouble &point,VecDouble &val, MatrixDouble &deriv){
     //
    // val[0]=(30. + 100.*pow(E,100.) - 130.*pow(E,10.*x[0]) - 3*x[0] + 3*pow(E,100.)*x[0])/(10.*(-1. + pow(E,100.)));
     //deriv(0,0)=(-3. + 3*pow(E,100) - 1300*pow(E,10*x[0]))/(10.*(-1 + pow(E,100)));
+
 }
 
 
