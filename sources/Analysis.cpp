@@ -94,11 +94,13 @@ VecDouble Analysis::PostProcessError(std::ostream &out, PostProcess &defPostProc
     VecDouble errors(10);
     values.setZero();
     errors.setZero();
+    
     std::function<void (const VecDouble &loc, VecDouble &result, MatrixDouble & deriv) > fExact;
 
     int64_t nel = cmesh->GetElementVec().size();
     GeoMesh *gmesh = cmesh->GetGeoMesh();
     int dim = gmesh->Dimension();
+    fExact = defPostProc.GetExact();
 
     for (int64_t i = 0; i < nel; i++) {
         CompElement *el = cmesh->GetElement(i);
@@ -107,7 +109,7 @@ VecDouble Analysis::PostProcessError(std::ostream &out, PostProcess &defPostProc
         if (el) {
             if (el->GetStatement()->GetMatID() == 1) {
                 errors.setZero();
-                fExact = defPostProc.GetExact();
+                
                 el->EvaluateError(fExact, errors);
                 int nerrors = errors.size();
                 if(values.size() != nerrors)

@@ -52,7 +52,8 @@ int main ()
     perm(1,1) = 1.;
     perm(2,2) = 1.;
     //Poisson *mat1 = new Poisson(1,perm);
-    Poisson* mat1 = new Poisson(3, perm);
+    Poisson* mat1 = new Poisson(1, perm);
+    mat1->SetExactSolution(exact);
     mat1->SetDimension(1);
 
     
@@ -79,6 +80,7 @@ int main ()
     
     PostProcessTemplate<Poisson> postprocess;
     postprocess.SetExact(exact);
+
 
     
     VecDouble errvec;

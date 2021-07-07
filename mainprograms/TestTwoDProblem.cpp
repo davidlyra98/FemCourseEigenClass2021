@@ -61,6 +61,8 @@ int main() {
 //#endif // MACOSX
     read.Read(gmesh, "quads.msh");
 
+    //void exact(const VecDouble & point, VecDouble & val, MatrixDouble & deriv);
+
     CompMesh cmesh(&gmesh);
     MatrixDouble perm(3, 3);
     perm.setZero();
@@ -68,7 +70,8 @@ int main() {
     perm(1, 1) = 1.;
     perm(2, 2) = 1.;
     //Poisson* mat1 = new Poisson(1, perm);
-    Poisson* mat1 = new Poisson(3, perm);
+    Poisson* mat1 = new Poisson(1, perm);
+    mat1->SetExactSolution(exact);
     mat1->SetDimension(2);
 
     auto force = [](const VecDouble& x, VecDouble& res)
@@ -80,10 +83,10 @@ int main() {
     proj.setZero();
     val1.setZero();
     val2.setZero();
-    L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
-    L2Projection* bc_point = new L2Projection(0, 3, proj, val1, val2);
     //L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
-    //L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
+    //L2Projection* bc_point = new L2Projection(0, 3, proj, val1, val2);
+    L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
+    L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
     std::vector<MathStatement*> mathvec = { 0,mat1,bc_point,bc_linha };
     cmesh.SetMathVec(mathvec);
     cmesh.SetDefaultOrder(2);
@@ -100,8 +103,7 @@ int main() {
         deriv(1, 0) = (1. - 2. * x[1]) * (1 - x[0]) * x[0];
 
     };
-    
-    
+
 
     postprocess.AppendVariable("Flux");
     postprocess.AppendVariable("Sol");
@@ -120,7 +122,7 @@ int main() {
     VecDouble errvec;
     errvec = locAnalysis.PostProcessError(std::cout, postprocess);
 
-    VTKGeoMesh::PrintCMeshVTK(&cmesh, 2, "solution.vtk");
+    VTKGeoMesh::PrintCMeshVTK(&cmesh, 2, "solution3.vtk");
 
     return 0;
 
