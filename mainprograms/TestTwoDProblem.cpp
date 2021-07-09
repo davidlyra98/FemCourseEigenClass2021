@@ -49,105 +49,10 @@
 #include "VTKGeoMesh.h"
 #include "CompElement.h"
 
+using std::cout;
+using std::endl;
+using std::cin;
 
-
-int main() {
-    GeoMesh gmesh;
-    ReadGmsh read;
-    //std::string filename("quads.msh");
-
-//#ifdef MACOSX
-    //filename = "../" + filename;
-//#endif // MACOSX
-    read.Read(gmesh, "quads.msh");
-
-    //void exact(const VecDouble & point, VecDouble & val, MatrixDouble & deriv);
-
-    CompMesh cmesh(&gmesh);
-    MatrixDouble perm(3, 3);
-    perm.setZero();
-    perm(0, 0) = 1.;
-    perm(1, 1) = 1.;
-    perm(2, 2) = 1.;
-    //Poisson* mat1 = new Poisson(1, perm);
-    Poisson* mat1 = new Poisson(1, perm);
-    //mat1->SetExactSolution(exact);
-    mat1->SetDimension(2);
-
-    auto force = [](const VecDouble& x, VecDouble& res)
-    {
-        res[0] = 2. * (1. - x[0] * x[0] + 2. * (1 - x[1]) * x[1]);
-    };
-    mat1->SetForceFunction(force);
-    MatrixDouble proj(1, 1), val1(1, 1), val2(1, 1);
-    proj.setZero();
-    val1.setZero();
-    val2.setZero();
-    //L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
-    //L2Projection* bc_point = new L2Projection(0, 3, proj, val1, val2);
-    L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
-    L2Projection* bc_point = new L2Projection(0, 1, proj, val1, val2);
-    std::vector<MathStatement*> mathvec = { 0,mat1,bc_point,bc_linha };
-    cmesh.SetMathVec(mathvec);
-    cmesh.SetDefaultOrder(2);
-    cmesh.AutoBuild();
-    cmesh.Resequence();
-
-    Analysis locAnalysis(&cmesh);
-    locAnalysis.RunSimulation();
-    PostProcessTemplate<Poisson> postprocess;
-    auto exact = [](const VecDouble& x, VecDouble& val, MatrixDouble& deriv)
-    {
-        val[0] = (1. - x[0] * x[0] * (1 - x[1]) * x[1]);
-        deriv(0, 0) = (1. - 2. * x[0]) * (1 - x[1] * x[1]);
-        deriv(1, 0) = (1. - 2. * x[1]) * (1 - x[0]) * x[0];
-
-    };
-
-
-    postprocess.AppendVariable("Flux");
-    postprocess.AppendVariable("Sol");
-    postprocess.AppendVariable("DSol");
-    postprocess.AppendVariable("SolExact");
-    postprocess.AppendVariable("Force");
-    postprocess.AppendVariable("DSolExact");
-   
-    postprocess.SetExact(exact);
-    mat1->SetExactSolution(exact);
-    mat1->SetExactSolution(exact);
-
-
-    locAnalysis.PostProcessSolution("quads.vtk", postprocess);
-
-    VecDouble errvec;
-    errvec = locAnalysis.PostProcessError(std::cout, postprocess);
-
-    VTKGeoMesh::PrintCMeshVTK(&cmesh, 2, "solution3.vtk");
-
-    return 0;
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
 
 int main ()
 {
@@ -177,8 +82,10 @@ int main ()
     proj.setZero();
     val1.setZero();
     val2.setZero();
-    L2Projection *bc_linha = new L2Projection(0,2,proj,val1,val2);
-    L2Projection *bc_point = new L2Projection(0,3,proj,val1,val2);
+    L2Projection *bc_linha = new L2Projection(0,1,proj,val1,val2);
+    L2Projection *bc_point = new L2Projection(0,2,proj,val1,val2);
+    //L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
+    //L2Projection* bc_point = new L2Projection(0, 3, proj, val1, val2);
     std::vector<MathStatement *> mathvec = {0,mat1,bc_point,bc_linha};
     cmesh.SetMathVec(mathvec);
     cmesh.SetDefaultOrder(1);
@@ -195,12 +102,7 @@ int main ()
         deriv(1,0) = (1-2.*x[1])*(1-x[0])*x[0];
     };
 
-//    if (!strcmp("Sol", name.c_str())) return ESol;
-//    if (!strcmp("DSol", name.c_str())) return EDSol;
-//    if (!strcmp("Flux", name.c_str())) return EFlux;
-//    if (!strcmp("Force", name.c_str())) return EForce;
-//    if (!strcmp("SolExact", name.c_str())) return ESolExact;
-//    if (!strcmp("DSolExact", name.c_str())) return EDSolExact;
+
     postprocess.AppendVariable("Sol");
     postprocess.AppendVariable("DSol");
     postprocess.AppendVariable("Flux");
@@ -209,6 +111,9 @@ int main ()
     postprocess.AppendVariable("DSolExact");
     postprocess.SetExact(exact);
     mat1->SetExactSolution(exact);
+
+
+
     locAnalysis.PostProcessSolution("quads.vtk", postprocess);
 
     VecDouble errvec;
@@ -217,13 +122,9 @@ int main ()
     return 0;
 }
 
-
-
 void CreateTestMesh(CompMesh &mesh, int order)
 {
     DebugStop();
 }
 
-
-*/
 

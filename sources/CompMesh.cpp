@@ -169,10 +169,6 @@ VecDouble &CompMesh::Solution() {
 void CompMesh::LoadSolution(VecDouble &Sol) {
     solution = Sol;
     
-    //solution.resize(Sol.size());
-    //for (int64_t i = 0; i < Sol.size(); i++) {
-    //    solution[i] = Sol[i];
-    //}
 
 }
 

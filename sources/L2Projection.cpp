@@ -5,8 +5,6 @@
  */
 
 #include "L2Projection.h"
-#include "PostProcess.h"
-#include "tpanic.h"
 #include <string.h>
 
 L2Projection::L2Projection() {
@@ -57,17 +55,20 @@ void L2Projection::SetProjectionMatrix(const MatrixDouble& proj) {
 
 void L2Projection::Contribute(IntPointData& data, double weight, MatrixDouble& EK, MatrixDouble& EF) const {
     int nstate = this->NState();
-    auto nshape = data.phi.size();
-
     if (nstate != 1) {
         std::cout << "Please implement me\n";
         DebugStop();
     }
-    if (EK.rows() != nshape || EF.rows() != nshape)
-    {
-        DebugStop();
-    }
 
+    auto nshape = data.phi.size();
+
+    // if(EK.rows() != nshape || EF.rows() != nshape);
+    // {
+    //     DebugStop();
+    // }
+
+    // VecDouble result(data.x.size());
+    // MatrixDouble deriv(data.x.size(), data.x.size());
     VecDouble result(nstate);
     result[0] = Val2()(0, 0);
     MatrixDouble deriv(data.x.size(), nstate);
@@ -76,26 +77,28 @@ void L2Projection::Contribute(IntPointData& data, double weight, MatrixDouble& E
     if (SolutionExact)
     {
         SolutionExact(data.x, result, deriv);
-        if (this->GetBCType() == 1) {
-            std::cout << "Please implement me\n";
-            DebugStop();
-        }
-
     }
 
     switch (this->GetBCType()) {
 
     case 0:
-    {
+    {   
         EF += (MathStatement::gBigNumber * result[0] * weight) * data.phi;
         EK += (MathStatement::gBigNumber * weight) * data.phi * data.phi.transpose();
 
+      
         break;
     }
 
     case 1:
-    {
-        EF += (result[0] * weight) * data.phi;
+    {   
+        for (auto iv = 0; iv < nstate; iv++) {
+            for (auto in = 0; in < nshape; in++) {
+                EF(nstate * in + iv, 0) += (result[iv] * weight) * data.phi(in);
+            } 
+        } 
+
+       
         break;
     }
 
@@ -104,7 +107,7 @@ void L2Projection::Contribute(IntPointData& data, double weight, MatrixDouble& E
         std::cout << __PRETTY_FUNCTION__ << " at line " << __LINE__ << " not implemented\n";
     }
     }
-    //+++++++++++++++++
+
 }
 
 int L2Projection::NEvalErrors() const {
@@ -149,6 +152,10 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
     int cols = data.dsoldx.cols();
     MatrixDouble gradu(rows, cols);
     gradu = data.dsoldx;
+    //    if(data.dsoldx.rows() > 0 && data.dsoldx(0,0) != 0.)
+    //    {
+    //        std::cout << "L2Proj " << data.dsoldx(0,0) << std::endl;
+    //    }
 
     int nstate = this->NState();
 
@@ -158,16 +165,16 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
         std::cout << " Var index not implemented " << std::endl;
         DebugStop();
     }
+
     case 1: //ESol
     {
         //+++++++++++++++++
         // Please implement me
+        // DebugStop();
         Solout.resize(nstate);
         for (int i = 0; i < nstate; i++) {
             Solout[i] = sol[i];
-
         }
-
         //+++++++++++++++++
     }
     break;
@@ -175,19 +182,19 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
     case 2: //EDSol
     {
         //+++++++++++++++++
-        // Please implement me
+      // Please implement me
+      // DebugStop();
 
         Solout.resize(rows * cols);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 Solout[i * cols + j] = gradu(i, j);
             }
-
         }
         //+++++++++++++++++
+
     }
     break;
-
     case 3: {
         break;
     }
@@ -200,6 +207,7 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
     case 6: {
         break;
     }
+
     default:
     {
         std::cout << " Var index not implemented " << std::endl;
@@ -207,4 +215,5 @@ void L2Projection::PostProcessSolution(const IntPointData& data, const int var, 
     }
     }
 }
-
+ 
+ 
