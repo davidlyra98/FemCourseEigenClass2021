@@ -58,7 +58,7 @@ int main ()
 {
     GeoMesh gmesh;
     ReadGmsh read;
-    std::string filename("quads.msh");
+    std::string filename("05twotri.msh");
 #ifdef MACOSX
     filename = "../"+filename;
 #endif
@@ -75,34 +75,70 @@ int main ()
 
     auto force = [](const VecDouble &x, VecDouble &res)
     {
-        res[0] = 2.*(1.-x[0])*x[0]+2.*(1-x[1])*x[1];
+
+        res[0] = -0.2*(-1. + x[1])*(-1. + x[0])*x[0] - 0.2*x[1]*(-1. + x[0])*x[0] -
+            40.*(-1. + x[1])*x[1]*(-1. + x[0])*cos(x[0]) -
+            40.*(-1. + x[1])*x[1]*x[0]*cos(x[0]) +
+            20.*(-1. + x[1])*x[1]*(-1. + x[0])*x[0]*sin(x[0]) -
+            0.2*(-1. + x[1])*x[1]*(1.*x[1] + 200.*sin(x[0])) -
+            0.2*(-1. + x[0])*x[0]*(1.*x[1] + 200.*sin(x[0]));
+
+        //res[0] = 2.5 * (1. - x[1]) * x[1] + 10. * (1. - 0.25 * x[0]) * x[0];
+        //res[0] = 2.*(1.-x[0])*x[0]+2.*(1-x[1])*x[1];
+    };
+    
+    auto exact = [](const VecDouble& x, VecDouble& val, MatrixDouble& deriv)
+    {
+
+        val[0] = ((1. - x[0]) * x[0] * (1 - x[1]) * x[1])*(x[1]/10.+20.*sin(x[0]));
+        deriv(0, 0) = x[1] * (x[1] * (0.1 - 0.1 * x[1] - 0.2 * x[0] + 0.2 * x[1] * x[0]) + x[0] * (20. - 20. * x[0] + x[1] * (-20. + 20. * x[0])) * cos(x[0]) + (20. - 20. * x[1] - 40. * x[0] + 40. * x[0] * x[1]) * sin(x[0]));
+        deriv(1, 0) = x[0] * (x[1] * (0.2 + x[1] * (-0.3 + 0.3 * x[0]) - 0.2 * x[0]) + (20. - 20. * x[0] + x[1] * (-40. + 40. * x[0])) * sin(x[0]));
+        //val[0] = (1. - x[0] / 4.) * x[0] * (1 - x[1]) * x[1] * 5.;
+        //deriv(0, 0) = x[1] * (5. - 2.5 * x[0] + x[1] * (-5. + 2.5 * x[0]));
+        //deriv(1, 0) = x[0] * (5. - 1.25 * x[0] + x[1] * (-10. + 2.5 * x[0]));
+
+        //Professor
+        //val[0] = (1.-x[0])*x[0]*(1-x[1])*x[1];
+       // deriv(0,0) = (1.-2.*x[0])*(1-x[1])*x[1];
+        //deriv(1,0) = (1-2.*x[1])*(1-x[0])*x[0];
     };
     mat1->SetForceFunction(force);
     MatrixDouble proj(1,1),val1(1,1),val2(1,1);
     proj.setZero();
     val1.setZero();
     val2.setZero();
-    L2Projection *bc_linha = new L2Projection(0,1,proj,val1,val2);
-    L2Projection *bc_point = new L2Projection(0,2,proj,val1,val2);
+    L2Projection *bc_linha = new L2Projection(0,2,proj,val1,val2);
+    L2Projection *bc_point = new L2Projection(0,3,proj,val1,val2);
     //L2Projection* bc_linha = new L2Projection(0, 2, proj, val1, val2);
     //L2Projection* bc_point = new L2Projection(0, 3, proj, val1, val2);
-    std::vector<MathStatement *> mathvec = {0,mat1,bc_point,bc_linha};
+    //std::vector<MathStatement *> mathvec = {0,mat1,bc_point,bc_linha};
+    bc_linha->SetExactSolution(exact);
+    bc_point->SetExactSolution(exact);
+
+    std::vector<MathStatement*> mathvec = { 0,mat1,bc_linha,bc_point};
+
     cmesh.SetMathVec(mathvec);
-    cmesh.SetDefaultOrder(1);
+    cmesh.SetDefaultOrder(2);
     cmesh.AutoBuild();
     cmesh.Resequence();
 
         Analysis locAnalysis(&cmesh);
     locAnalysis.RunSimulation();
     PostProcessTemplate<Poisson> postprocess;
-    auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
+    /*auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
     {
-        val[0] = (1.-x[0])*x[0]*(1-x[1])*x[1];
-        deriv(0,0) = (1.-2.*x[0])*(1-x[1])*x[1];
-        deriv(1,0) = (1-2.*x[1])*(1-x[0])*x[0];
+
+        val[0] = (1. - x[0]/4.) * x[0] * (1 - x[1]) * x[1]*5.;
+        deriv(0, 0) = x[1] * (5. - 2.5 * x[0] + x[1] * (-5. + 2.5 * x[0]));
+        deriv(1, 0) = x[0] * (5. - 1.25 * x[0] + x[1] * (-10. + 2.5 * x[0]));
+
+        //Professor
+        //val[0] = (1.-x[0])*x[0]*(1-x[1])*x[1];
+       // deriv(0,0) = (1.-2.*x[0])*(1-x[1])*x[1];
+        //deriv(1,0) = (1-2.*x[1])*(1-x[0])*x[0];
     };
 
-
+    */
     postprocess.AppendVariable("Sol");
     postprocess.AppendVariable("DSol");
     postprocess.AppendVariable("Flux");
@@ -114,7 +150,7 @@ int main ()
 
 
 
-    locAnalysis.PostProcessSolution("quads.vtk", postprocess);
+    locAnalysis.PostProcessSolution("c_tri_05.vtk", postprocess);
 
     VecDouble errvec;
     errvec = locAnalysis.PostProcessError(std::cout, postprocess);

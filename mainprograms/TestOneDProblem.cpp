@@ -96,7 +96,7 @@ int main ()
 
 void exact(const VecDouble &point,VecDouble &val, MatrixDouble &deriv){
 
-    deriv(0, 0) = 0.4 - point[0];
+    deriv(0, 0) = 4. - point[0];
     val[0]= point[0] * (8. - point[0]) / 2.;
     return;
 
